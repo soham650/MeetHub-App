@@ -22,8 +22,8 @@ module.exports = (io) => {
         userName: name
       }));
 
-      // Send the list of existing peer socket IDs to the newly connected user
-      socket.emit('existing-peers', existingPeers.map(peer => peer.socketId));
+      // Send the list of existing peers to the newly connected user
+      socket.emit('existing-peers', existingPeers);
 
       // Notify other room participants about the new user joining
       socket.to(roomId).emit('user-joined', {

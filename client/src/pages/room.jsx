@@ -128,11 +128,12 @@ function Room() {
     // Receive list of existing peers upon joining
     socket.on('existing-peers', async (peers) => {
       console.log('Existing peers:', peers);
-      for (const peerId of peers) {
-        const peer = createPeerConnection(peerId);
+      for (const { socketId, userName } of peers) {
+        setRemoteNames(prev => ({ ...prev, [socketId]: userName }));
+        const peer = createPeerConnection(socketId);
         const offer = await peer.createOffer();
         await peer.setLocalDescription(offer);
-        socket.emit('send-offer', { offer, to: peerId });
+        socket.emit('send-offer', { offer, to: socketId });
       }
     });
 
