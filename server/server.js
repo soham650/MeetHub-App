@@ -13,15 +13,37 @@ require('dotenv').config();
 const app = express();
 const httpServer = http.createServer(app);
 
+const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, '') : '';
+const allowedOrigins = [
+  clientUrl,
+  'http://localhost:5173'
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is allowed or is any Vercel deployment URL
+    const isAllowed = allowedOrigins.includes(origin) || origin.endsWith('.vercel.app');
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
+
 const io = new Server(httpServer, {
-  cors: { origin: process.env.CLIENT_URL }
+  cors: corsOptions
 });
 
 app.set('io', io);
 
 // Security middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Rate limiting
