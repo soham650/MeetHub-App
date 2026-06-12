@@ -5,7 +5,9 @@ import Chat from '../components/Chat';
 import Whiteboard from '../components/Whiteboard';
 import FileShare from '../components/FileShare';
 
-const socket = io('http://localhost:5000');
+import { API_BASE_URL } from '../config';
+
+const socket = io(API_BASE_URL);
 
 // STUN servers for WebRTC peer connection configuration
 const ICE_SERVERS = {

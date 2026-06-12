@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { API_BASE_URL } from '../config';
+
 function FileShare({ socket, roomId, userName }) {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -25,7 +27,7 @@ function FileShare({ socket, roomId, userName }) {
       formData.append('roomId', roomId);
       formData.append('userName', userName);
 
-      await axios.post('http://localhost:5000/api/rooms/upload', formData, {
+      await axios.post(`${API_BASE_URL}/api/rooms/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
