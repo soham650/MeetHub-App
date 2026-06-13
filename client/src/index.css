@@ -109,3 +109,38 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Fullscreen styles for video wrappers */
+.video-container-wrapper:fullscreen {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: black !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.video-container-wrapper:fullscreen video {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Ensure controls overlay correctly in fullscreen */
+.video-container-wrapper:fullscreen .fullscreen-btn {
+  top: 16px !important;
+  left: 16px !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+}
+
+.video-container-wrapper:fullscreen span {
+  bottom: 16px !important;
+  left: 16px !important;
+  font-size: 16px !important;
+  padding: 6px 12px !important;
+}

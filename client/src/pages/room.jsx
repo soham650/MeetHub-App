@@ -19,10 +19,23 @@ const ICE_SERVERS = {
 
 function Room() {
   const localVideoRef = useRef(null);
+  const localContainerRef = useRef(null);
   const [remoteStreams, setRemoteStreams] = useState({});
   const [remoteNames, setRemoteNames] = useState({});
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Helper to toggle full screen mode for a video container wrapper
+  const toggleFullscreen = (containerRef) => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch((err) => {
+        console.error('Error enabling fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   // Set the initial room ID from the URL query parameter if present
   const [roomId, setRoomId] = useState(() => searchParams.get('roomId') || '');
@@ -371,7 +384,7 @@ function Room() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
 
               {/* Local Video Preview */}
-              <div style={{ position: 'relative' }}>
+              <div ref={localContainerRef} className="video-container-wrapper" style={{ position: 'relative' }}>
                 <video
                   ref={localVideoRef}
                   autoPlay
@@ -383,6 +396,25 @@ function Room() {
                     objectFit: 'cover', border: '2px solid #2563eb'
                   }}
                 />
+                <button
+                  onClick={() => toggleFullscreen(localContainerRef)}
+                  className="fullscreen-btn"
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    left: '8px',
+                    background: 'rgba(15, 23, 42, 0.75)',
+                    border: '1px solid #334155',
+                    borderRadius: '4px',
+                    color: 'white',
+                    padding: '4px 8px',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    zIndex: 10
+                  }}
+                >
+                  Fullscreen
+                </button>
                 <span style={{
                   position: 'absolute', bottom: '8px', left: '8px',
                   background: 'rgba(0,0,0,0.7)', padding: '2px 8px',
@@ -535,6 +567,7 @@ const btnStyle = (bg) => ({
 // Remote participant video tile
 function RemoteVideo({ stream, name }) {
   const videoRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (videoRef.current && stream) {
@@ -543,8 +576,20 @@ function RemoteVideo({ stream, name }) {
     }
   }, [stream]);
 
+  // Helper to toggle full screen mode for this remote participant container
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch((err) => {
+        console.error('Error enabling fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={containerRef} className="video-container-wrapper" style={{ position: 'relative' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -555,6 +600,25 @@ function RemoteVideo({ stream, name }) {
           objectFit: 'cover', border: '2px solid #334155'
         }}
       />
+      <button
+        onClick={toggleFullscreen}
+        className="fullscreen-btn"
+        style={{
+          position: 'absolute',
+          top: '8px',
+          left: '8px',
+          background: 'rgba(15, 23, 42, 0.75)',
+          border: '1px solid #334155',
+          borderRadius: '4px',
+          color: 'white',
+          padding: '4px 8px',
+          cursor: 'pointer',
+          fontSize: '11px',
+          zIndex: 10
+        }}
+      >
+        Fullscreen
+      </button>
       <span style={{
         position: 'absolute', bottom: '8px', left: '8px',
         background: 'rgba(0,0,0,0.7)', padding: '2px 8px',
