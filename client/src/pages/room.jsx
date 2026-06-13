@@ -21,7 +21,11 @@ function Room() {
   const localVideoRef = useRef(null);
   const [remoteStreams, setRemoteStreams] = useState({});
   const [remoteNames, setRemoteNames] = useState({});
-  const [roomId, setRoomId] = useState('');
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Set the initial room ID from the URL query parameter if present
+  const [roomId, setRoomId] = useState(() => searchParams.get('roomId') || '');
   const [joined, setJoined] = useState(false);
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
@@ -33,8 +37,6 @@ function Room() {
   const [copied, setCopied] = useState(false);
   const localStreamRef = useRef(null);
   const peersRef = useRef({});
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -57,14 +59,6 @@ function Room() {
       socket.connect();
     }
   }, []);
-
-  // Prefill the room ID if it is provided in the URL query parameter
-  useEffect(() => {
-    const roomIdParam = searchParams.get('roomId');
-    if (roomIdParam) {
-      setRoomId(roomIdParam);
-    }
-  }, [searchParams]);
 
   // Attach local stream after joining room
   useEffect(() => {
