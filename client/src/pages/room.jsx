@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Chat from '../components/Chat';
 import Whiteboard from '../components/Whiteboard';
 import FileShare from '../components/FileShare';
@@ -30,19 +30,26 @@ function Room() {
   const [showWhiteboard, setShowWhiteboard] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
   const localStreamRef = useRef(null);
   const peersRef = useRef({});
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const user = JSON.parse(localStorage.getItem('user'));
 
-  // Auth redirect check
+  // Auth redirect check - preserves roomId query parameter if present
   useEffect(() => {
     const loggedInUser = localStorage.getItem('user');
     if (!loggedInUser) {
-      navigate('/');
+      const roomIdParam = searchParams.get('roomId');
+      if (roomIdParam) {
+        navigate(`/?roomId=${roomIdParam}`);
+      } else {
+        navigate('/');
+      }
     }
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   // Connect socket if disconnected when mounting the component
   useEffect(() => {
@@ -50,6 +57,14 @@ function Room() {
       socket.connect();
     }
   }, []);
+
+  // Prefill the room ID if it is provided in the URL query parameter
+  useEffect(() => {
+    const roomIdParam = searchParams.get('roomId');
+    if (roomIdParam) {
+      setRoomId(roomIdParam);
+    }
+  }, [searchParams]);
 
   // Attach local stream after joining room
   useEffect(() => {
@@ -286,6 +301,19 @@ function Room() {
     }
   };
 
+  // Copy the invite link to clipboard
+  const handleCopyLink = () => {
+    const inviteLink = `${window.location.origin}/room?roomId=${roomId}`;
+    navigator.clipboard.writeText(inviteLink)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error('Failed to copy link: ', err);
+      });
+  };
+
   const leaveRoom = () => {
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(track => track.stop());
@@ -453,6 +481,27 @@ function Room() {
             <p style={{ color: '#475569', marginTop: '10px', fontSize: '12px' }}>
               Room ID: <strong style={{ color: '#94a3b8' }}>{roomId}</strong> (Share this ID to invite others)
             </p>
+
+            <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={handleCopyLink}
+                style={{
+                  padding: '8px 14px',
+                  background: '#334155',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}
+              >
+                {copied ? 'Copied!' : 'Copy Invite Link'}
+              </button>
+              <span style={{ fontSize: '12px', color: '#64748b' }}>
+                {window.location.origin}/room?roomId={roomId}
+              </span>
+            </div>
           </div>
 
           {/* Right — Chat or Files side panel */}

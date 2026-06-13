@@ -27,7 +27,15 @@ function Register() {
 
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/room');
+      
+      // Check for roomId in query parameters and redirect accordingly
+      const searchParams = new URLSearchParams(window.location.search);
+      const roomId = searchParams.get('roomId');
+      if (roomId) {
+        navigate(`/room?roomId=${roomId}`);
+      } else {
+        navigate('/room');
+      }
 
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
@@ -140,7 +148,7 @@ function Register() {
 
         <p style={{ textAlign: 'center', color: '#64748b', marginTop: '20px', fontSize: '14px' }}>
           Already have an account?{' '}
-          <a href="/" style={{ color: '#60a5fa', textDecoration: 'none' }}>Sign in</a>
+          <a href={`/${window.location.search}`} style={{ color: '#60a5fa', textDecoration: 'none' }}>Sign in</a>
         </p>
       </div>
     </div>

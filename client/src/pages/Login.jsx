@@ -24,7 +24,15 @@ function Login() {
 
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/room');
+      
+      // Check for roomId in query parameters and redirect accordingly
+      const searchParams = new URLSearchParams(window.location.search);
+      const roomId = searchParams.get('roomId');
+      if (roomId) {
+        navigate(`/room?roomId=${roomId}`);
+      } else {
+        navigate('/room');
+      }
 
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -139,7 +147,7 @@ function Login() {
 
         <p style={{ textAlign: 'center', color: '#64748b', marginTop: '20px', fontSize: '14px' }}>
           No account?{' '}
-          <a href="/register" style={{ color: '#60a5fa', textDecoration: 'none' }}>
+          <a href={`/register${window.location.search}`} style={{ color: '#60a5fa', textDecoration: 'none' }}>
             Create one
           </a>
         </p>
