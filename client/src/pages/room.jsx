@@ -44,6 +44,13 @@ function Room() {
     }
   }, [navigate]);
 
+  // Connect socket if disconnected when mounting the component
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+  }, []);
+
   // Attach local stream after joining room
   useEffect(() => {
     if (joined && localVideoRef.current && localStreamRef.current) {
@@ -105,6 +112,9 @@ function Room() {
     setError('');
 
     try {
+      if (!socket.connected) {
+        socket.connect();
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true
