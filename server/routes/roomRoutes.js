@@ -36,7 +36,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
   try {
     const fileInfo = {
       name: req.file.originalname,
-      url: `http://localhost:5000/uploads/${req.file.filename}`,
+      url: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`,
       size: req.file.size,
       type: req.file.mimetype,
       uploadedBy: req.body.userName,
