@@ -19,13 +19,25 @@ const allowedOrigins = [
   'http://localhost:5173'
 ];
 
+const isLocalOrigin = (origin) => {
+  if (!origin) return false;
+  // Match http://localhost:PORT or http://127.0.0.1:PORT
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return true;
+  // Match private local IP address ranges (192.168.x.x, 10.x.x.x, 172.16.x.x-172.31.x.x)
+  if (/^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin)) return true;
+  return false;
+};
+
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     
-    // Check if origin is allowed or is any Vercel deployment URL
-    const isAllowed = allowedOrigins.includes(origin) || origin.endsWith('.vercel.app');
+    // Check if origin is allowed, is any Vercel deployment URL, or is a local origin
+    const isAllowed = allowedOrigins.includes(origin) || 
+                      origin.endsWith('.vercel.app') || 
+                      isLocalOrigin(origin);
+                      
     if (isAllowed) {
       callback(null, true);
     } else {
